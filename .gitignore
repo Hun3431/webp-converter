@@ -1,0 +1,12 @@
+# dependencies
+/node_modules
+
+# resource
+/images/*
+/source/*
+
+# Apple Meta Data
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
