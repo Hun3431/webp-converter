@@ -3,6 +3,8 @@ import imageminWebp from "imagemin-webp";
 import path from "path";
 import fs from "fs/promises";
 
+let count = 0;
+
 const convertToWebp = async (sourcePath = "source") => {
   try {
     // 현재 디렉토리의 모든 파일과 폴더 읽기
@@ -19,6 +21,7 @@ const convertToWebp = async (sourcePath = "source") => {
       ],
     });
 
+    count += files.length;
     console.log(
       `${sourcePath} 폴더의 ${files.length}개 이미지가 변환되었습니다.`
     );
@@ -40,4 +43,5 @@ const convertToWebp = async (sourcePath = "source") => {
   }
 };
 
-convertToWebp();
+await convertToWebp();
+console.log(`총 ${count}개 이미지가 변환되었습니다.`);
