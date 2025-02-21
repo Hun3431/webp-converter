@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "type": "module",
   "dependencies": {
-    "imagemin": "^9.0.0",
-    "imagemin-webp": "^8.0.0"
+    "sharp": "^0.33.5"
   }
 }

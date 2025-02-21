@@ -1,5 +1,4 @@
-import imagemin from "imagemin";
-import imageminWebp from "imagemin-webp";
+import sharp from "sharp";
 import path from "path";
 import fs from "fs/promises";
 
@@ -10,31 +9,40 @@ const convertToWebp = async (sourcePath = "source") => {
     // 현재 디렉토리의 모든 파일과 폴더 읽기
     const entries = await fs.readdir(sourcePath, { withFileTypes: true });
 
-    // 이미지 변환 작업
-    const files = await imagemin([`${sourcePath}/*.{jpg,jpeg,png}`], {
-      destination: sourcePath.replace("source", "images"),
-      plugins: [
-        imageminWebp({
-          quality: 100, // 0 ~ 100 으로 이미지 퀄리티 지정(100 : 원본)
-          method: 4,
-        }),
-      ],
-    });
+    // 대상 폴더 생성
+    const targetPath = sourcePath.replace("source", "images");
+    await fs.mkdir(targetPath, { recursive: true }).catch(() => {});
 
-    count += files.length;
+    // 이미지 변환 작업
+    let filesConverted = 0;
+    for (const entry of entries) {
+      if (entry.isFile()) {
+        const ext = path.extname(entry.name).toLowerCase();
+        if ([".jpg", ".jpeg", ".png"].includes(ext)) {
+          const sourcefile = path.join(sourcePath, entry.name);
+          const targetFile = path.join(
+            targetPath,
+            `${path.parse(entry.name).name}.webp`
+          );
+
+          await sharp(sourcefile)
+            .webp({ quality: 100 }) // 퀄리티 설정 (0-100)
+            .toFile(targetFile);
+
+          filesConverted++;
+        }
+      }
+    }
+
+    count += filesConverted;
     console.log(
-      `${sourcePath} 폴더의 ${files.length}개 이미지가 변환되었습니다.`
+      `${sourcePath} 폴더의 ${filesConverted}개 이미지가 변환되었습니다.`
     );
 
     // 하위 폴더 처리
     for (const entry of entries) {
-      // 폴더인지 확인
       if (entry.isDirectory()) {
         const subPath = path.join(sourcePath, entry.name);
-        // 대상 폴더 생성
-        const targetPath = subPath.replace("source", "images");
-        await fs.mkdir(targetPath, { recursive: true }).catch(() => {});
-        // 재귀 호출로 하위 디렉토리 파일 변환 진행
         await convertToWebp(subPath);
       }
     }
